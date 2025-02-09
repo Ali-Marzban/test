@@ -1,0 +1,38 @@
+name: Laravel CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --optimize-autoloader
+
+      - name: Run the database migrations
+        run: |
+          php artisan migrate
+
+      - name: Clear optimization cache
+        run: |
+          php artisan optimize:clear
+
+      - name: Restart queues
+        run: |
+          php artisan queue:restart
